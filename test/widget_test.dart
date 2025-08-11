@@ -1,6 +1,7 @@
 // test/todo_providers_test.dart
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo_app/notifier/todo_notifier.dart';
 
 void main() {
@@ -8,9 +9,13 @@ void main() {
     late ProviderContainer container;
     late TodoListNotifier notifier;
 
-    setUp(() {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    SharedPreferences.setMockInitialValues({});
+
+    setUp(() async {
       container = ProviderContainer();
       notifier = container.read(todoListProvider.notifier);
+      await notifier.loadTodos();
     });
 
     tearDown(() {
@@ -22,32 +27,31 @@ void main() {
       expect(todos, isEmpty);
     });
 
-    test('should add todo', () {
-      notifier.addTodo('Test todo');
-
+    test('should add todo', () async {
+      await notifier.addTodo('Test todo');
       final todos = container.read(todoListProvider);
       expect(todos, hasLength(1));
       expect(todos.first.title, 'Test todo');
       expect(todos.first.isCompleted, false);
     });
 
-    test('should toggle todo', () {
-      notifier.addTodo('Test todo');
+    test('should toggle todo', () async {
+      await notifier.addTodo('Test todo');
       final todos = container.read(todoListProvider);
       final todoId = todos.first.id;
 
-      notifier.toggleTodo(todoId);
+      await notifier.toggleTodo(todoId);
 
       final updatedTodos = container.read(todoListProvider);
       expect(updatedTodos.first.isCompleted, true);
     });
 
-    test('should delete todo', () {
-      notifier.addTodo('Test todo');
+    test('should delete todo', () async {
+      await notifier.addTodo('Test todo');
       final todos = container.read(todoListProvider);
       final todoId = todos.first.id;
 
-      notifier.deleteTodo(todoId);
+      await notifier.deleteTodo(todoId);
 
       final updatedTodos = container.read(todoListProvider);
       expect(updatedTodos, isEmpty);

@@ -8,15 +8,15 @@ import '../model/todo_model.dart';
 class TodoListNotifier extends StateNotifier<List<Todo>> {
   static const _storageKey = 'todos';
 
-  TodoListNotifier() : super([]) {
-    _loadTodos();
-  }
+  TodoListNotifier() : super([]);
 
-  Future<void> _loadTodos() async {
+
+  Future<void> loadTodos() async {
     final prefs = await SharedPreferences.getInstance();
     final todosJson = prefs.getString(_storageKey);
     if (todosJson != null) {
       final List decoded = jsonDecode(todosJson);
+      if (!mounted) return;
       state = decoded.map((e) => Todo.fromMap(e)).toList();
     }
   }
@@ -27,19 +27,21 @@ class TodoListNotifier extends StateNotifier<List<Todo>> {
     await prefs.setString(_storageKey, encoded);
   }
 
-  void addTodo(String title) {
+  Future<void> addTodo(String title) async {
     if (title.trim().isEmpty) return;
 
     final newTodo = Todo(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: title.trim(),
     );
-
+    if (!mounted) return;
     state = [...state, newTodo];
-    _saveTodos();
+    if (mounted) {
+      await _saveTodos();
+    }
   }
 
-  void toggleTodo(String id) {
+  Future<void> toggleTodo(String id) async {
     state = [
       for (final todo in state)
         if (todo.id == id)
@@ -47,17 +49,23 @@ class TodoListNotifier extends StateNotifier<List<Todo>> {
         else
           todo,
     ];
-    _saveTodos();
+    if (mounted) {
+      await _saveTodos();
+    }
   }
 
-  void deleteTodo(String id) {
+  Future<void> deleteTodo(String id) async {
     state = state.where((todo) => todo.id != id).toList();
-    _saveTodos();
+    if (mounted) {
+      await _saveTodos();
+    }
   }
 
-  void clearCompleted() {
+  Future<void> clearCompleted() async {
     state = state.where((todo) => !todo.isCompleted).toList();
-    _saveTodos();
+    if (mounted) {
+      await _saveTodos();
+    }
   }
 }
 

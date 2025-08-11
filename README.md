@@ -4,7 +4,7 @@
 
 Used Riverpod for state management to facilitate state management and CRUD functionalities.
 Used SharedPreferences to persist user data so that user progress is not lost after exiting the app.
-Enabled theme mode with deference to the sysytem setting of user device. 
+Enabled theme mode with deference to the system setting of user device. 
 Added some visual feedback for user actions. 
 
 <img width="1179" height="2556" alt="Simulator Screenshot - iPhone 15 Pro - 2025-08-11 at 12 13 33" src="https://github.com/user-attachments/assets/905a732e-dd2e-4416-b6db-c9ee7581565b" />
